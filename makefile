@@ -1,11 +1,24 @@
-.PHONY: run install test
+.PHONY: run install unit integration test lint format
 
 run: install
-	@cd src && python3 main.py
+	@poetry run python3 src/main.py
 
 install:
-	@conan install . --output-folder=build --build=missing -s build_type=Release
-	@conan install . --output-folder=build --build=missing -s build_type=Debug
+	poetry install
 
-test: install
-	
+unit: install
+	@poetry run pytest test/unit
+
+integration: install
+	@poetry run pytest test/integration
+
+test: unit integration
+
+lint:
+	poetry run mypy src
+	poetry run ruff check src
+	poetry run ruff format --check src
+
+format:
+	poetry run ruff format src
+	poetry run ruff check --fix src
